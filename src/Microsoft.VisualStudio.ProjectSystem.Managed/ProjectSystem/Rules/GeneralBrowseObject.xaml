@@ -61,7 +61,16 @@
     <StringProperty Name="Prefer32Bit" DisplayName="Prefer 32Bit"/>
     <StringProperty Name="AllowUnsafeBlocks"  Default="False"  DisplayName="Allow unsafe code"/>
     <StringProperty Name="Optimize" DisplayName="Optimize"/>
-    <EnumProperty Name="WarningLevel" DisplayName="Warning Level"/>
+    <EnumProperty Name="WarningLevel" DisplayName="Warning Level">
+        <EnumValue Name="0" DisplayName="0" IsDefault="True" />
+        <EnumValue Name="1" DisplayName="1" />
+        <EnumValue Name="2" DisplayName="2" />
+        <EnumValue Name="3" DisplayName="3" />
+        <EnumValue Name="4" DisplayName="4" />
+        <EnumProperty.DataSource>
+            <DataSource Persistence="ProjectFileWithInterception" PersistedName="WarningLevel"/>
+        </EnumProperty.DataSource>
+    </EnumProperty>
     <StringProperty Name="NoWarn" DisplayName="Supress Warning"/>
     <BoolProperty Name="TreatWarningsAsErrors" Visible="True"  Default="False" Description="Treat warnings as errors" />
     <StringProperty Name="OutputPath" DisplayName="Output Path"/>
