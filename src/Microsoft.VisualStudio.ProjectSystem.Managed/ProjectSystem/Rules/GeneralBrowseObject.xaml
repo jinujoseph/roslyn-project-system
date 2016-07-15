@@ -50,7 +50,14 @@
     </StringProperty.DataSource>
   </StringProperty>
     <StringProperty Name="DefineConstants" DisplayName="Define Constants"/>
-    <EnumProperty Name="PlatformTarget" DisplayName="Platform Target"/>
+    <EnumProperty Name="PlatformTarget" DisplayName="Platform Target">
+        <EnumValue Name="anycpu" DisplayName="Any CPU" IsDefault="True" />
+        <EnumValue Name="x86" DisplayName="x86" />
+        <EnumValue Name="x64" DisplayName="x64" />
+        <EnumProperty.DataSource>
+            <DataSource Persistence="ProjectFileWithInterception" PersistedName="PlatformTarget" />
+        </EnumProperty.DataSource>
+    </EnumProperty>
     <StringProperty Name="Prefer32Bit" DisplayName="Prefer 32Bit"/>
     <StringProperty Name="AllowUnsafeBlocks"  Default="False"  DisplayName="Allow unsafe code"/>
     <StringProperty Name="Optimize" DisplayName="Optimize"/>
