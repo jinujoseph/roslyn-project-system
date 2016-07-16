@@ -11,16 +11,6 @@ namespace Microsoft.VisualStudio.ProjectSystem.Properties
     [ExportInterceptingPropertyValueProvider("WarningLevel")]
     internal sealed class WarningLevelValueProvider : InterceptingPropertyValueProviderBase
     {
-        private readonly UnconfiguredProject _unconfiguredProject;
-
-        [ImportingConstructor]
-        public WarningLevelValueProvider(UnconfiguredProject unconfiguredProject)
-        {
-            Requires.NotNull(unconfiguredProject, nameof(unconfiguredProject));
-
-            _unconfiguredProject = unconfiguredProject;
-        }
-
         public override Task<string> OnSetPropertyValueAsync(string unevaluatedPropertyValue, IProjectProperties defaultProperties, IReadOnlyDictionary<string, string> dimensionalConditions = null)
         {
             int warningLevel;

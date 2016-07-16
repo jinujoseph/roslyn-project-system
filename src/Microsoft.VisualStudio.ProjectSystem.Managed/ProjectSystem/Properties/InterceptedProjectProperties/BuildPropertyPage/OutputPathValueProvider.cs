@@ -3,22 +3,31 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.VisualStudio.ProjectSystem.Properties
 {
-    [ExportInterceptingPropertyValueProvider("PlatformTarget")]
-    internal sealed class PlatformTargetValueProvider : InterceptingPropertyValueProviderBase
+    [ExportInterceptingPropertyValueProvider("OutputPath")]
+    internal sealed class OutputPathValueProvider : InterceptingPropertyValueProviderBase
     {
         public override Task<string> OnSetPropertyValueAsync(string unevaluatedPropertyValue, IProjectProperties defaultProperties, IReadOnlyDictionary<string, string> dimensionalConditions = null)
         {
-            var possibleTargets = new[] {"AnyCPU", "x86", "x64", "Itanium"};
-            if (possibleTargets.Contains(unevaluatedPropertyValue, StringComparer.OrdinalIgnoreCase))
+            string outputPath = ".";
+            if (!string.IsNullOrWhiteSpace(unevaluatedPropertyValue))
             {
-                return Task.FromResult(unevaluatedPropertyValue);
+                outputPath = unevaluatedPropertyValue;
             }
-            return Task.FromResult("anycpu");
+            return Task.FromResult(EnsureFinalBackslash(outputPath));
+        }
+        private static string EnsureFinalBackslash(string path)
+        {
+            if (!path.EndsWith("\\"))
+            {
+                path += "\\";
+            }
+            return path;
         }
     }
 }
