@@ -32,6 +32,11 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Microsoft.VisualStudio.ProjectSystem.Managed.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Microsoft.VisualStudio.ProjectSystem.Managed.resx</DependentUpon>
+    </Compile>
     <Compile Include="ProjectSystem\ContractNames.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ProjectSystem\Build\PublishableProjectConfigProvider.cs" />
@@ -39,6 +44,7 @@
     <Compile Include="ProjectSystem\Properties\DelegatedProjectPropertiesProviderBase.cs" />
     <Compile Include="ProjectSystem\Properties\DelegatedProjectPropertiesBase.cs" />
     <Compile Include="ProjectSystem\Properties\ImplicitProjectPropertiesProvider.cs" />
+    <Compile Include="ProjectSystem\Properties\InterceptedProjectProperties\BuildPropertyPage\GenerateSerializationAssemblies.cs" />
     <Compile Include="ProjectSystem\Properties\InterceptedProjectProperties\BuildPropertyPage\OutputPathValueProvider.cs" />
     <Compile Include="ProjectSystem\Properties\InterceptedProjectProperties\BuildPropertyPage\PlatformTargetValueProvider.cs" />
     <Compile Include="ProjectSystem\Properties\InterceptedProjectProperties\BuildPropertyPage\WarningLevelValueProvider.cs" />
@@ -152,6 +158,12 @@
       <Generator>MSBuild:GenerateRuleSourceFromXaml</Generator>
       <SubType>Designer</SubType>
     </XamlPropertyRule>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Microsoft.VisualStudio.ProjectSystem.Managed.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Microsoft.VisualStudio.ProjectSystem.Managed.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="..\..\build\Targets\VSL.Imports.targets" />
 </Project>

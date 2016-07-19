@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,7 +18,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.Properties
             {
                 if (!Enumerable.Range(0, 4).Contains(warningLevel))
                 {
-                    warningLevel = 0;
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.enum_out_of_range, "WarningLevel"));
                 }
             }
             return Task.FromResult(warningLevel.ToString());

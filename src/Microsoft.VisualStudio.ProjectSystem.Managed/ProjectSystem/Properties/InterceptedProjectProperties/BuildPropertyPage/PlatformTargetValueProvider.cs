@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +16,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.Properties
             var possibleTargets = new[] {"AnyCPU", "x86", "x64", "Itanium"};
             if (possibleTargets.Contains(unevaluatedPropertyValue, StringComparer.OrdinalIgnoreCase))
             {
-                return Task.FromResult(unevaluatedPropertyValue);
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Resources.enum_out_of_range, "PlatformTarget"));
             }
             return Task.FromResult("anycpu");
         }

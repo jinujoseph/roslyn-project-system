@@ -83,6 +83,9 @@
         <EnumValue Name="Auto" DisplayName="Auto" IsDefault="True" />
         <EnumValue Name="On" DisplayName="On" />
         <EnumValue Name="Off" DisplayName="Off" />
+        <EnumProperty.DataSource>
+            <DataSource Persistence="ProjectFileWithInterception" PersistedName="GenerateSerializationAssemblies"/>
+        </EnumProperty.DataSource>
     </EnumProperty>
     <EnumProperty Name="LanguageVersion" DisplayName="Language version"/>
     <EnumProperty Name="ErrorReport" DisplayName="Error report"/>
