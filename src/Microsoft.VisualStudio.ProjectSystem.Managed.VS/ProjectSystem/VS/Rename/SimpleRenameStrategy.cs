@@ -23,7 +23,11 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Rename
         {
             var oldNameBase = Path.GetFileNameWithoutExtension(oldFileName);
             var newNameBase = Path.GetFileNameWithoutExtension(newFileName);
-            return SyntaxFacts.IsValidIdentifier(oldNameBase) && SyntaxFacts.IsValidIdentifier(newNameBase);
+            if (!string.Equals(oldNameBase, newNameBase, System.StringComparison.CurrentCultureIgnoreCase))
+            {
+                return SyntaxFacts.IsValidIdentifier(oldNameBase) && SyntaxFacts.IsValidIdentifier(newNameBase);
+            }
+            return false;
         }
 
         public override async Task RenameAsync(Project myNewProject, string oldFileName, string newFileName)
