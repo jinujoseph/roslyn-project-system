@@ -61,6 +61,51 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All files.
+        /// </summary>
+        internal static string AllFiles {
+            get {
+                return ResourceManager.GetString("AllFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy.
+        /// </summary>
+        internal static string CopyHyperlinkText {
+            get {
+                return ResourceManager.GetString("CopyHyperlinkText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate Key.
+        /// </summary>
+        internal static string DuplicateKey {
+            get {
+                return ResourceManager.GetString("DuplicateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string EnvVariableNameWatermark {
+            get {
+                return ResourceManager.GetString("EnvVariableNameWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string EnvVariableValueWatermark {
+            get {
+                return ResourceManager.GetString("EnvVariableValueWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The following error occurred when reading the launch settings file &apos;{0}&apos;. {1} .
         /// </summary>
         internal static string ErrorReadingLaunchSettings {
@@ -75,6 +120,33 @@ namespace Microsoft.VisualStudio {
         internal static string ErrorWritingDebugSettings {
             get {
                 return ResourceManager.GetString("ErrorWritingDebugSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Executable files.
+        /// </summary>
+        internal static string ExecutableFiles {
+            get {
+                return ResourceManager.GetString("ExecutableFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The IIS settings are missing the App Url property. This is required to configure IIS to run the site..
+        /// </summary>
+        internal static string IISExpressMissingAppUrl {
+            get {
+                return ResourceManager.GetString("IISExpressMissingAppUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Application Url is invalid. {0}.
+        /// </summary>
+        internal static string InvalidAppUrl {
+            get {
+                return ResourceManager.GetString("InvalidAppUrl", resourceCulture);
             }
         }
         
@@ -97,6 +169,24 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name cannot be empty..
+        /// </summary>
+        internal static string NameCannotBeEmpty {
+            get {
+                return ResourceManager.GetString("NameCannotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to newProfile.
+        /// </summary>
+        internal static string NewProfileSeedName {
+            get {
+                return ResourceManager.GetString("NewProfileSeedName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start.
         /// </summary>
         internal static string NoActionProfileName {
@@ -106,11 +196,56 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Command.
+        /// </summary>
+        internal static string ProfileKindCommandName {
+            get {
+                return ResourceManager.GetString("ProfileKindCommandName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Executable.
+        /// </summary>
+        internal static string ProfileKindExecutableName {
+            get {
+                return ResourceManager.GetString("ProfileKindExecutableName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IIS Express.
+        /// </summary>
+        internal static string ProfileKindIISExpressName {
+            get {
+                return ResourceManager.GetString("ProfileKindIISExpressName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Project.
+        /// </summary>
+        internal static string ProfileKindProjectName {
+            get {
+                return ResourceManager.GetString("ProfileKindProjectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to At least one launch profile is missing the required name attribute. These profiles will be ignored.
         /// </summary>
         internal static string ProfileMissingName {
             get {
                 return ResourceManager.GetString("ProfileMissingName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value cannot be empty..
+        /// </summary>
+        internal static string ValueCannotBeEmpty {
+            get {
+                return ResourceManager.GetString("ValueCannotBeEmpty", resourceCulture);
             }
         }
     }

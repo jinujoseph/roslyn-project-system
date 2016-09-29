@@ -44,6 +44,14 @@
     <Compile Include="Packaging\CSharpProjectSystemPackage.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ProjectSystem\VS\CSharpProjectCompatibilityProvider.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\DebugProfile.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\IDebugProfile.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\IIISSettings.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\IISSettings.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\ILaunchSettings.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\ILaunchSettingsProvider.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\ISSLPortProvider.cs" />
+    <Compile Include="ProjectSystem\VS\Debugger\LaunchSettings.cs" />
     <Compile Include="ProjectSystem\VS\LanguageServices\CSharpVsContainedLanguageComponentsFactory.cs" />
     <Compile Include="ProjectSystem\VS\Properties\CSharpProjectDesignerPage.cs" />
     <Compile Include="ProjectSystem\VS\Properties\CSharpProjectDesignerPageProvider.cs" />
@@ -53,6 +61,48 @@
     </Compile>
     <Compile Include="ProjectSystem\VS\LanguageServices\CSharpLanguageFeaturesProvider.cs" />
     <Compile Include="ProjectSystem\VS\CSharpProjectGuidProvider.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\DebugPageControl.xaml.cs">
+      <DependentUpon>DebugPageControl.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ProjectSystem\VS\Properties\Debug\DebugPageViewModel.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\DebugPropertyPage.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\DefaultValueSourceLocation.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IArgument.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\ICategory.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IDataSource.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IPageMetadata.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IProjectPropertiesContext.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IProjectSubscriptions.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IProperty.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IPropertyGroup.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IPropertyProvider.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IRule.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IsValidValueResult.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\IValueEditor.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPage.Designer.cs">
+      <DependentUpon>PropertyPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageControl.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageElementHost.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageViewModel.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\WatermarkTextBox.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\WpfBasedPropertyPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ProjectSystem\VS\Properties\Debug\WpfBasedPropertyPage.Designer.cs">
+      <DependentUpon>WpfBasedPropertyPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProjectSystem\VS\Utilities\DelegateCommand.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\DictionaryEqualityComparer.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\EnumMatchToBooleanConverter.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\NameValuePair.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\ObservableList.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\ObservableListExtensions.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\UriUtilities.cs" />
     <Compile Include="ProjectSystem\VS\Xproj\MigrateXprojProjectFactory.cs" />
     <Compile Include="ProjectSystem\VS\Xproj\ProcessRunner.cs" />
   </ItemGroup>
@@ -61,6 +111,27 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VSPackage.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="ProjectSystem\VS\Properties\Debug\DebugPageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
+    <Page Include="ProjectSystem\VS\Properties\Debug\WatermarkStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <Import Project="..\..\build\Targets\VSL.Imports.targets" />
 </Project>
