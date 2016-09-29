@@ -29,6 +29,7 @@ namespace Microsoft.VisualStudio.Packaging
         SingleFileGenerators.TextTemplatingFilePreprocessorDescription, ProjectTypeGuidFormatted, GeneratesDesignTimeSource = true)]
     [GeneratorExtensionRegistration(SingleFileGenerators.TextTemplatingFileGeneratorExtension,
         SingleFileGenerators.TextTemplatingFileGenerator, ProjectTypeGuidFormatted)]
+    [ClassRegistrationAttribute(DebugPropertyClassId, DebugPropertyAssemblyInfo, DebugPropertyClassInfo)]
     internal class CSharpProjectSystemPackage : AsyncPackage
     {
         public const string ProjectTypeGuid = "9A19103F-16F7-4668-BE54-9A1E7A4F7556";
@@ -36,6 +37,9 @@ namespace Microsoft.VisualStudio.Packaging
         public const string XprojTypeGuid = "8bb2217d-0f2d-49d1-97bc-3654ed321f3b";
         public const string PackageGuid = "860A27C0-B665-47F3-BC12-637E16A1050A";
         private const string ProjectTypeGuidFormatted = "{" + ProjectTypeGuid + "}";
+        private const string DebugPropertyClassId = "{0273C280-1882-4ED0-9308-52914672E3AA}";
+        private const string DebugPropertyClassInfo = "Microsoft.VisualStudio.ProjectSystem.CSharp.VS.DebugPropertyPage";
+        private const string DebugPropertyAssemblyInfo = "Microsoft.VisualStudio.ProjectSystem.CSharp.VS,version=15.0.0.0,publicKeyToken=31bf3856ad364e35,culture=neutral";
 
         private IVsProjectFactory _factory;
 
