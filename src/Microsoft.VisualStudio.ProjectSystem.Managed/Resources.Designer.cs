@@ -70,6 +70,24 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Arguments to be passed to the application.
+        /// </summary>
+        internal static string ApplicationArgumentsWatermark {
+            get {
+                return ResourceManager.GetString("ApplicationArgumentsWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The URL of the application.
+        /// </summary>
+        internal static string ApplicationUrlWatermark {
+            get {
+                return ResourceManager.GetString("ApplicationUrlWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copy.
         /// </summary>
         internal static string CopyHyperlinkText {
@@ -133,6 +151,15 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Path to the executable to run.
+        /// </summary>
+        internal static string ExecutablePathWatermark {
+            get {
+                return ResourceManager.GetString("ExecutablePathWatermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The IIS settings are missing the App Url property. This is required to configure IIS to run the site..
         /// </summary>
         internal static string IISExpressMissingAppUrl {
@@ -165,6 +192,15 @@ namespace Microsoft.VisualStudio {
         internal static string JsonErrorReadingLaunchSettings {
             get {
                 return ResourceManager.GetString("JsonErrorReadingLaunchSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Absolute or relative URL.
+        /// </summary>
+        internal static string LaunchUrlWatermark {
+            get {
+                return ResourceManager.GetString("LaunchUrlWatermark", resourceCulture);
             }
         }
         
@@ -246,6 +282,15 @@ namespace Microsoft.VisualStudio {
         internal static string ValueCannotBeEmpty {
             get {
                 return ResourceManager.GetString("ValueCannotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Absolute path to working directory.
+        /// </summary>
+        internal static string WorkingDirectoryWatermark {
+            get {
+                return ResourceManager.GetString("WorkingDirectoryWatermark", resourceCulture);
             }
         }
     }

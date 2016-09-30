@@ -68,6 +68,7 @@
     <Compile Include="ProjectSystem\VS\Properties\Debug\DebugPageViewModel.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\DebugPropertyPage.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\DefaultValueSourceLocation.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\EnvironmentGridTemplateColumn.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\IArgument.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\ICategory.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\IDataSource.cs" />
@@ -96,13 +97,16 @@
     <Compile Include="ProjectSystem\VS\Properties\Debug\WpfBasedPropertyPage.Designer.cs">
       <DependentUpon>WpfBasedPropertyPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProjectSystem\VS\Utilities\Converters.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\DelegateCommand.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\DictionaryEqualityComparer.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\EnumMatchToBooleanConverter.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\FocusAttacher.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\NameValuePair.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\ObservableList.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\ObservableListExtensions.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\UriUtilities.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\WpfHelper.cs" />
     <Compile Include="ProjectSystem\VS\Xproj\MigrateXprojProjectFactory.cs" />
     <Compile Include="ProjectSystem\VS\Xproj\ProcessRunner.cs" />
   </ItemGroup>

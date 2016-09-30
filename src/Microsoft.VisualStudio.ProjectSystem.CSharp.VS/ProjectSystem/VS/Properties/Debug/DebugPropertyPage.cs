@@ -61,6 +61,71 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 return PageName;
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Arguments to be passed to the application.
+        /// </summary>
+        public static string ApplicationArgumentsWatermark
+        {
+            get
+            {
+                return  Resources.ApplicationArgumentsWatermark;
+            }
+        }
+        
+
+
+        public static string ApplicationUrlWatermark
+        {
+            get
+            {
+                return Resources.ApplicationUrlWatermark;
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Arguments to be passed to the application.
+        /// </summary>
+        public static string EnvVariableValueWatermark
+        {
+            get
+            {
+                return Resources.EnvVariableValueWatermark;
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Path to the executable to run.
+        /// </summary>
+        public static string ExecutablePathWatermark
+        {
+            get
+            {
+                return Resources.ExecutablePathWatermark;
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Absolute or relative URL.
+        /// </summary>
+        public static string LaunchUrlWatermark
+        {
+            get
+            {
+                return Resources.LaunchUrlWatermark;
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Absolute path to working directory.
+        /// </summary>
+        public static string WorkingDirectoryWatermark
+        {
+            get
+            {
+                return Resources.WorkingDirectoryWatermark;
+            }
+        }
     }
 }
 
