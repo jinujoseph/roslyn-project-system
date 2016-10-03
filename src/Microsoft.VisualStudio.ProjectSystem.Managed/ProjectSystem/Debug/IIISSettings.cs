@@ -5,15 +5,15 @@
 //
 // Copyright(c) 2015 Microsoft Corporation
 //--------------------------------------------------------------------------------------------
-namespace Microsoft.VisualStudio.ProjectSystem.DotNet
+namespace Microsoft.VisualStudio.ProjectSystem.Debug
 {
-    internal interface IServerBinding
+    public interface IServerBinding
     {
         string ApplicationUrl { get; }
         int SSLPort { get; }
     }
 
-    internal interface IIISSettings
+    public interface IIISSettings
     {
         bool WindowsAuthentication { get; }
         bool AnonymousAuthentication { get; }

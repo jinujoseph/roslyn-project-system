@@ -7,7 +7,7 @@
 //
 // Copyright(c) 2015 Microsoft Corporation
 //--------------------------------------------------------------------------------------------
-namespace Microsoft.VisualStudio.ProjectSystem.DotNet
+namespace Microsoft.VisualStudio.ProjectSystem.Debug
 {
     internal interface ISSLPortProvider
     {

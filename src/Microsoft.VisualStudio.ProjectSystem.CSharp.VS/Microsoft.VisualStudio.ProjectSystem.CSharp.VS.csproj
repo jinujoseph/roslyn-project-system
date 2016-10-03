@@ -44,14 +44,6 @@
     <Compile Include="Packaging\CSharpProjectSystemPackage.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ProjectSystem\VS\CSharpProjectCompatibilityProvider.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\DebugProfile.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\IDebugProfile.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\IIISSettings.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\IISSettings.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\ILaunchSettings.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\ILaunchSettingsProvider.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\ISSLPortProvider.cs" />
-    <Compile Include="ProjectSystem\VS\Debugger\LaunchSettings.cs" />
     <Compile Include="ProjectSystem\VS\LanguageServices\CSharpVsContainedLanguageComponentsFactory.cs" />
     <Compile Include="ProjectSystem\VS\Properties\CSharpProjectDesignerPage.cs" />
     <Compile Include="ProjectSystem\VS\Properties\CSharpProjectDesignerPageProvider.cs" />
@@ -89,6 +81,11 @@
     </Compile>
     <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageControl.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageElementHost.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PropertyPageResources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ProjectSystem\VS\Properties\Debug\PropertyPageViewModel.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\WatermarkTextBox.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\WpfBasedPropertyPage.cs">
@@ -99,12 +96,12 @@
     </Compile>
     <Compile Include="ProjectSystem\VS\Utilities\Converters.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\DelegateCommand.cs" />
-    <Compile Include="ProjectSystem\VS\Utilities\DictionaryEqualityComparer.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\EnumMatchToBooleanConverter.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\FocusAttacher.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\NameValuePair.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\ObservableList.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\ObservableListExtensions.cs" />
+    <Compile Include="ProjectSystem\VS\Utilities\StringExtensions.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\UriUtilities.cs" />
     <Compile Include="ProjectSystem\VS\Utilities\WpfHelper.cs" />
     <Compile Include="ProjectSystem\VS\Xproj\MigrateXprojProjectFactory.cs" />
@@ -114,6 +111,10 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ProjectSystem\VS\Properties\Debug\PropertyPageResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PropertyPageResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx" />
   </ItemGroup>
   <ItemGroup>

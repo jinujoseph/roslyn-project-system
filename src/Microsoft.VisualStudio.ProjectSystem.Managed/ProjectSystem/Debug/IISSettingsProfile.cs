@@ -5,12 +5,11 @@
 //
 // Copyright(c) 2015 Microsoft Corporation
 //--------------------------------------------------------------------------------------------
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Debugger
+namespace Microsoft.VisualStudio.ProjectSystem.Debug
 {
     using System;
     using Newtonsoft.Json;
-    using Microsoft.VisualStudio.ProjectSystem.DotNet;
-
+ 
     // Each server (iis and iis express) contains a serverbinding data object if present.
     [JsonObject(MemberSerialization.OptIn)]
     internal class ServerBindingData : IServerBinding
@@ -62,15 +61,15 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Debugger
     }
 
 
-    internal class IISSettings : IIISSettings
+    internal class IISSettingsProfile : IIISSettings
     {
         IISSettingsData SettingsData { get; set; }
-        public IISSettings (IISSettingsData data)
+        public IISSettingsProfile(IISSettingsData data)
         {
             SettingsData = data;
         }
 
-        public IISSettings (IIISSettings data)
+        public IISSettingsProfile(IIISSettings data)
         {
             SettingsData = IISSettingsData.FromIIISSettings(data);
         }

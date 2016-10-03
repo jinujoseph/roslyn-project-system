@@ -10,6 +10,8 @@
 
 namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 {
+    using Microsoft.VisualStudio.ProjectSystem.VS.Extensibility;
+    using Microsoft.VisualStudio.Shell;
     using System;
     using System.ComponentModel.Composition;
     using System.Diagnostics.CodeAnalysis;
@@ -34,13 +36,14 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 
     [Guid("0273C280-1882-4ED0-9308-52914672E3AA")]
     [ExcludeFromCodeCoverage]
+    [AppliesTo(ProjectCapability.CSharp)]
     internal partial class DebugPropertyPage : WpfBasedPropertyPage
     {
 
         internal static readonly string PageName = "Debug Page"; // Resources.DebugPropertyPageTitle;//TODO: DebugProp 
 
         public DebugPropertyPage()
-        {
+        { 
         }
 
         protected override PropertyPageViewModel CreatePropertyPageViewModel()
@@ -51,7 +54,6 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         protected override PropertyPageControl CreatePropertyPageControl()
         {
             return new DebugPageControl();
-            //return null;
         }
 
         protected override string PropertyPageName

@@ -8,22 +8,21 @@
 
 namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 {
-    using Microsoft.VisualStudio.ProjectSystem.CSharp.VS;
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    //using Microsoft.VisualStudio.ProjectSystem.DotNet.PropertyProviders;
 
     internal abstract class PropertyPageViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
         public IPropertyProvider[] ConfiguredProperties { get; set; }
-        public IPropertyProvider UnconfiguredProperties { get;  set; }
+        public IPropertyProvider UnconfiguredProperties { get; set; }
         public UnconfiguredProject UnconfiguredDotNetProject { get; set; }
+        public IUnconfiguredProjectServices UnconfiguredProject { get; set; }
         public PropertyPageControl ParentControl { get; set; }
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         /// PushIgnoreEvents\PopIgnoreEvents  are used instead to control the count.
         /// </summary>
         private int _ignoreEventsNestingCount = 0;
-        public bool IgnoreEvents { get { return _ignoreEventsNestingCount > 0;}}
+        public bool IgnoreEvents { get { return _ignoreEventsNestingCount > 0; } }
         public void PushIgnoreEvents()
         {
             _ignoreEventsNestingCount++;
@@ -50,13 +49,6 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         public abstract Task Initialize();
         public abstract Task<int> Save();
 
-        /* //TODO: DebugProp 
-        [ExcludeFromCodeCoverage]
-        public virtual IProjectSubscriptions GetSubscriptions()
-        {
-            return UnconfiguredDotNetProject.UnconfiguredProject.Services.ExportProvider.GetExportedValue<IProjectSubscriptions>();
-        }*/
-
         protected virtual void OnPropertyChanged(string propertyName, bool suppressInvalidation = false)
         {
             // For some properties we don't want to invalidate the property page
@@ -69,7 +61,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             {
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
-            if(suppressInvalidation)
+            if (suppressInvalidation)
             {
                 PopIgnoreEvents();
             }
@@ -86,33 +78,35 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             return false;
         }
 
-        protected virtual bool OnPropertyChanged<T>(ref T propertyRef, T value, [CallerMemberName] string propertyName=null)
+        protected virtual bool OnPropertyChanged<T>(ref T propertyRef, T value, [CallerMemberName] string propertyName = null)
         {
             return OnPropertyChanged(ref propertyRef, value, suppressInvalidation: false, propertyName: propertyName);
         }
 
-        /* //TODO: DebugProp
         /// <summary>
         /// Helper to determine if this is a web project or not. We cache it so we can get it in a non
         /// async way from the UI.
         /// </summary>
         public bool IsWebProject { get; private set; }
-        public virtual async Task<bool> IsWebProjectAsync()
+        public virtual bool IsWebProjectAsync()
         {
+            /* TODO 
             bool isWebProject;
             bool.TryParse(await UnconfiguredProperties.GetEvaluatedPropertyValueAsync(ConfigurationGeneral.IsWebProjectProperty), out isWebProject);
             IsWebProject = isWebProject;
             return isWebProject;
+            */
+
+            return false;
         }
 
-        public virtual bool IsDnxProject 
+        public virtual bool IsDnxProject
         {
             get
             {
-                var sdkToolingData = UnconfiguredDotNetProject.CurrentSdkToolingData;
-                return sdkToolingData == null ? false : !sdkToolingData.IsDotNetCli;
+                return false;
             }
-        }*/
+        }
 
         protected void SetBooleanProperty(ref bool property, string value, bool defaultValue, bool invert = false)
         {

@@ -7,7 +7,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace Microsoft.VisualStudio.ProjectSystem.DotNet.Utilities
+namespace Microsoft.VisualStudio.ProjectSystem.Utilities
 {
     using System.Collections.Generic;
     using System.Collections.Immutable;

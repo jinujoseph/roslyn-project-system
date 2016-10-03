@@ -11,10 +11,19 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.ProjectSystem.VS;
+using System.ComponentModel.Composition;
+using Microsoft.VisualStudio.ProjectSystem.Properties;
+using System.Linq;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.ProjectSystem.VS.Extensibility;
 
 namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 {
-    public abstract partial class PropertyPage : UserControl, IPropertyPage,IVsDebuggerEvents
+    [AppliesTo(ProjectCapability.CSharp)]
+    public abstract partial class PropertyPage : UserControl,
+       IPropertyPage,
+       IVsDebuggerEvents
+        
     {
         private IPropertyPageSite _site = null;
         private bool _isDirty = false;
@@ -52,8 +61,9 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 
         internal IPropertyProvider UnconfiguredProperties { get; set; }
         internal IPropertyProvider[] ConfiguredProperties { get; set; }
-        internal IUnconfiguredProjectVsServices UnconfiguredDotNetProject { get; set; }
-        //internal IDotNetThreadHandling ThreadHandling { get; set; }
+        internal UnconfiguredProject UnconfiguredDotNetProject { get; set; }
+        internal IProjectThreadingService ThreadHandling { get; set; }
+
 
         ///--------------------------------------------------------------------------------------------
         /// <summary>
@@ -76,6 +86,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
         }
 
+        public List<IVsBrowseObjectContext> ContextObjects { get; private set; }
+
         /// <summary>
         /// Helper to wait on async tasks
         /// </summary>
@@ -87,26 +99,26 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 Task<T> t = asyncFunc();
                 return t.Result;
             }
-            //Debug.Assert(ThreadHandling != null);
-            return UnconfiguredDotNetProject.ThreadingService.ExecuteSynchronously<T>(asyncFunc);
+            //Assert(_threadHandling != null);
+            return ThreadHandling.ExecuteSynchronously<T>(asyncFunc);
         }
 
         /// <summary>
         /// Helper to wait on async tasks
         /// </summary>
         private void WaitForAsync(Func<Task> asyncFunc)
-        {
-            // Real VS execution
-            if (!_useJoinableTaskFactory)
             {
-                // internal test usage
-                asyncFunc().Wait();
-                return;
-            }
+                // Real VS execution
+                if (!_useJoinableTaskFactory)
+                {
+                    // internal test usage
+                    asyncFunc().Wait();
+                    return;
+                }
 
-            //Debug.Assert(ThreadHandling != null);
-            //UnconfiguredDotNetProject.ThreadingService.ExecuteSynchronously(asyncFunc);
-        }
+                //Debug.Assert(ThreadHandling != null);
+                ThreadHandling.ExecuteSynchronously(asyncFunc);
+            }
 
         ///--------------------------------------------------------------------------------------------
         /// <summary>
@@ -227,95 +239,16 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             return NativeMethods.S_OK;
         }
 
-        /// <summary>
-        /// Get the unconfigured property provider for the project
-        /// </summary>
-        internal virtual UnconfiguredProjectVsServices GetUnconfiguredDotNetProject(IVsHierarchy hier)
-        {
-            //var provider = PropertyProviderBase.GetExport<IProjectExportProvider>(hier);
-            return null; //  provider.GetExport<UnconfiguredProjectVsServices>(hier);
-        }
-
+        
         /// <summary>
         /// Get the configured property provider for the project
         /// </summary>
         internal virtual IPropertyProvider GetConfiguredPropertyProvider(IVsHierarchy hier, string configurationName)
         {
-            // return ConfiguredPropertyProvider.GetProvider(hier, configurationName);
             return null;
         }
 
-        ///--------------------------------------------------------------------------------------------
-        /// <summary>
-        /// IPropertyPage
-        /// This should query the IUnknown for the Interfaces we may be interested in. If called with 0, then we need to release those interfaces
-        /// </summary>
-        ///--------------------------------------------------------------------------------------------
-        public void SetObjects(uint cObjects, object[] ppunk)
-        {
-            // If asked to, release our cached selected Project object(s)
-            UnconfiguredProperties = null;
-            ConfiguredProperties = null;
-            UnconfiguredDotNetProject = null;
-            if (cObjects == 0)
-            {
-                // If we have never configured anything (maybe a failure occurred on open so app designer is closing us). In this case
-                // do nothing
-                //if (ThreadHandling != null)
-                {
-                    SetObjects(true);
-                }
-                return;
-            }
-
-            if (ppunk.Length < cObjects)
-                throw new ArgumentOutOfRangeException("cObjects");
-
-            List<IPropertyProvider> configuredProperties = new List<IPropertyProvider>();
-            List<string> configurations = new List<string>();
-            // Look for an IVsBrowseObject
-            for (int i = 0; i < cObjects; ++i)
-            {
-                IVsBrowseObject browseObj = null;
-                browseObj = ppunk[i] as IVsBrowseObject;
-
-                if (browseObj != null)
-                {
-                    IVsHierarchy hier = null;
-                    uint itemid;
-                    int hr;
-                    hr = browseObj.GetProjectItem(out hier, out itemid);
-                    //Debug.Assert(itemid == VSConstants.VSITEMID_ROOT, "Selected object should be project root node");
-
-                    if (hr == VSConstants.S_OK && itemid == VSConstants.VSITEMID_ROOT)
-                    {
-                        UnconfiguredDotNetProject = GetUnconfiguredDotNetProject(hier);
-                        //UnconfiguredProperties = UnconfiguredDotNetProject.PropertyProvider;
-
-                        // We need to save ThreadHandling because the appdesigner will call SetObjects with null, and then call
-                        // Deactivate(). We need to run Async code during Deactivate() which requires ThreadHandling.
-                        //ThreadHandling = UnconfiguredDotNetProject.ThreadingService;
-
-                        IVsProjectCfg2 pcg = ppunk[i] as IVsProjectCfg2;
-                        if (pcg != null)
-                        {
-                            string configName;
-                            pcg.get_CanonicalName(out configName);
-
-                            var provider = GetConfiguredPropertyProvider(hier, configName);
-                            if (provider != null)
-                            {
-                                configuredProperties.Add(provider);
-                            }
-                        }
-                    }
-                }
-
-                ConfiguredProperties = configuredProperties.ToArray();
-            }
-
-            SetObjects(false);
-        }
+        
 
         /// <summary>
         /// Informs derived classes that configuration has changed
@@ -400,7 +333,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             System.IServiceProvider sp = _site as System.IServiceProvider;
             if (sp != null)
             {
-                //_debugger = sp.GetService<IVsDebugger, IVsDebugger>();
+                _debugger = sp.GetService<IVsDebugger, IVsDebugger>();
                 if (_debugger != null)
                 {
                     _debugger.AdviseDebuggerEvents(this, out _debuggerCookie);
@@ -409,6 +342,26 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                     ((IVsDebuggerEvents)this).OnModeChange(dbgMode[0]);
                 }
             }
+        }
+
+
+        /// <summary>
+        /// Get the unconfigured property provider for the project
+        /// </summary>
+        internal virtual UnconfiguredProject GetUnconfiguredDotNetProject(IVsHierarchy hier)
+        {
+            var provider = GetExport<IProjectExportProvider>(hier);
+            return provider.GetExport<UnconfiguredProject>(hier.GetDTEProject().FileName);
+        }
+
+        /// <summary>
+        /// Get export
+        /// </summary>
+        internal static T GetExport<T>(IVsHierarchy hier)
+        {
+            System.IServiceProvider sp = new Microsoft.VisualStudio.Shell.ServiceProvider((OLE.Interop.IServiceProvider)hier.GetDTEProject().DTE);
+            IComponentModel compMode = sp.GetService<IComponentModel, SComponentModel>();
+            return compMode.DefaultExportProvider.GetExport<T>().Value;
         }
 
         ///--------------------------------------------------------------------------------------------
@@ -428,5 +381,53 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         protected abstract Task<int> OnApply();
         protected abstract Task OnDeactivate();
         protected abstract Task OnSetObjects(bool isClosing);
+
+        public void SetObjects(UInt32 cObjects, Object[] ppunk)
+        {
+            UnconfiguredDotNetProject = null;
+            if (cObjects == 0)
+            {
+                // If we have never configured anything (maybe a failure occurred on open so app designer is closing us). In this case
+                // do nothing
+                if (ThreadHandling != null)
+                {
+                    SetObjects(true);
+                }
+                return;
+            }
+
+            if (ppunk.Length < cObjects)
+                throw new ArgumentOutOfRangeException("cObjects");
+
+            List<string> configurations = new List<string>();
+            // Look for an IVsBrowseObject
+            for (int i = 0; i < cObjects; ++i)
+            {
+                IVsBrowseObject browseObj = null;
+                browseObj = ppunk[i] as IVsBrowseObject;
+
+                if (browseObj != null)
+                {
+                    IVsHierarchy hier = null;
+                    uint itemid;
+                    int hr;
+                    hr = browseObj.GetProjectItem(out hier, out itemid);
+                    //Debug.Assert(itemid == VSConstants.VSITEMID_ROOT, "Selected object should be project root node");
+
+                    if (hr == VSConstants.S_OK && itemid == VSConstants.VSITEMID_ROOT)
+                    {
+                        UnconfiguredDotNetProject = GetUnconfiguredDotNetProject(hier);
+
+                        // We need to save ThreadHandling because the appdesigner will call SetObjects with null, and then call
+                        // Deactivate(). We need to run Async code during Deactivate() which requires ThreadHandling.
+
+                        IUnconfiguredProjectVsServices _projectVsServices = UnconfiguredDotNetProject.Services.ExportProvider.GetExportedValue<IUnconfiguredProjectVsServices>();
+                        ThreadHandling = _projectVsServices.ThreadingService;
+                    }
+                }
+            }
+
+            OnSetObjects(false);
+        }
     }
 }

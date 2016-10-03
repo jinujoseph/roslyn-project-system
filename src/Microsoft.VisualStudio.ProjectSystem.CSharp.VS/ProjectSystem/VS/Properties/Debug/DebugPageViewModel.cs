@@ -6,29 +6,51 @@
 // Copyright(c) 2014 Microsoft Corporation
 //--------------------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
+using System.Windows;
+using System.Windows.Input;
+using Microsoft.VisualStudio.ProjectSystem.DotNet.Utilities;
+using Microsoft.VisualStudio.ProjectSystem.Debug;
+using Microsoft.VisualStudio.ProjectSystem.VS.Extensibility;
+using System.ComponentModel.Composition;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.ProjectSystem.VS;
+
 namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Threading.Tasks.Dataflow;
-    using System.Windows;
-    using System.Windows.Input;
-    using Microsoft.VisualStudio.ProjectSystem.DotNet;
-    using Microsoft.VisualStudio.ProjectSystem.DotNet.Debugger;
-    using Microsoft.VisualStudio.ProjectSystem.DotNet.Utilities;
-    using Microsoft.VisualStudio.ProjectSystem.VS.Debugger;
-
+    [AppliesTo(ProjectCapability.CSharp)]
     internal class DebugPageViewModel : PropertyPageViewModel
     {
+        public DebugPageViewModel()
+        {
+
+        }
+
+        private IProjectThreadingService _projectThreadingService;
+        private IProjectThreadingService ProjectThreadingService
+        {
+            get
+            {
+                if (_projectThreadingService == null)
+                { 
+                    IUnconfiguredProjectVsServices _projectVsServices = UnconfiguredDotNetProject.Services.ExportProvider.GetExportedValue<IUnconfiguredProjectVsServices>();
+                    _projectThreadingService = _projectVsServices.ThreadingService;
+                    
+                }
+                return _projectThreadingService;
+            }
+        }
+        
         private readonly string ExecutableFilter = String.Format("{0} (*.exe)|*.exe|{1} (*.*)|*.*", Resources.ExecutableFiles, Resources.AllFiles);
-        private readonly IProjectThreadingService _threadingService;
 
         public event EventHandler ClearEnvironmentVariablesGridError;
         public event EventHandler FocusEnvironmentVariablesGridRow;
@@ -36,14 +58,10 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         private string _defaultDNXVersion;
         private IDisposable _debugProfileProviderLink;
         private bool _useTaskFactory = true;
-
+                
         // This holds the set of shared IIS settings. This affects windows\anon auth (shared across iis\iisExpress) and
         // the IIS and IIS Express bindings. 
         private IISSettingsData _currentIISSettings;
-
-        public DebugPageViewModel()
-        {
-        }
 
         // for unit testing
         internal DebugPageViewModel(bool useTaskFactory)
@@ -155,17 +173,17 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                if(SelectedDebugProfile != null)
+                if (SelectedDebugProfile != null)
                 {
-                    if(SelectedDebugProfile.Kind == ProfileKind.IISExpress)
+                    if (SelectedDebugProfile.Kind == ProfileKind.IISExpress)
                     {
-                        return _currentIISSettings ?.IISExpressBindingData ?.ApplicationUrl;
+                        return _currentIISSettings?.IISExpressBindingData?.ApplicationUrl;
                     }
-                    else if(SelectedDebugProfile.Kind == ProfileKind.IIS)
+                    else if (SelectedDebugProfile.Kind == ProfileKind.IIS)
                     {
-                        return _currentIISSettings ?.IISBindingData ?.ApplicationUrl;
+                        return _currentIISSettings?.IISBindingData?.ApplicationUrl;
                     }
-                    else if(SelectedDebugProfile.IsWebServerCmdProfile)
+                    else if (SelectedDebugProfile.IsWebServerCmdProfile)
                     {
                         return SelectedDebugProfile.ApplicationUrl;
                     }
@@ -176,25 +194,25 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             {
                 if (value != ApplicationUrl)
                 {
-                    if(SelectedDebugProfile != null)
+                    if (SelectedDebugProfile != null)
                     {
-                        if(SelectedDebugProfile.Kind == ProfileKind.IISExpress)
+                        if (SelectedDebugProfile.Kind == ProfileKind.IISExpress)
                         {
-                            if(_currentIISSettings != null && _currentIISSettings.IISExpressBindingData != null)
+                            if (_currentIISSettings != null && _currentIISSettings.IISExpressBindingData != null)
                             {
                                 _currentIISSettings.IISExpressBindingData.ApplicationUrl = value;
                                 OnPropertyChanged(nameof(ApplicationUrl));
                             }
                         }
-                        else if(SelectedDebugProfile.Kind == ProfileKind.IIS)
+                        else if (SelectedDebugProfile.Kind == ProfileKind.IIS)
                         {
-                            if(_currentIISSettings != null && _currentIISSettings.IISBindingData != null)
+                            if (_currentIISSettings != null && _currentIISSettings.IISBindingData != null)
                             {
                                 _currentIISSettings.IISBindingData.ApplicationUrl = value;
                                 OnPropertyChanged(nameof(ApplicationUrl));
                             }
                         }
-                        else if(SelectedDebugProfile.IsWebServerCmdProfile)
+                        else if (SelectedDebugProfile.IsWebServerCmdProfile)
                         {
                             SelectedDebugProfile.ApplicationUrl = value;
                             OnPropertyChanged(nameof(ApplicationUrl));
@@ -244,7 +262,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                         else if (selectedLaunchType.Kind == ProfileKind.IISExpress)
                         {
                             ExecutablePath = String.Empty;
-                            //SelectedCommandName = LaunchSettingsProvider.IISExpressProfileCommandName;
+                            SelectedCommandName = LaunchSettingsProvider.IISExpressProfileCommandName;
                             HasLaunchOption = true;
                         }
                         else
@@ -262,19 +280,19 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 }
             }
         }
-        
+
         /// <summary>
         /// More hackery to deal with dnx commands. And existing commands is shown in the UI as project
         /// since that is what is run when that command is selected. However, we don't want tojust update the actual
         /// profile to this value - we want to treat them as equivalent.
         //</summary>
-        private bool IsEquivalentProfileKind(DebugProfile profile, ProfileKind kind)
+        private bool IsEquivalentProfileKind(LaunchProfile profile, ProfileKind kind)
         {
-            
-            if(kind == ProfileKind.Project)
+
+            if (kind == ProfileKind.Project)
             {
-                return profile.Kind == ProfileKind.Project || 
-                       profile.Kind == ProfileKind.BuiltInCommand || 
+                return profile.Kind == ProfileKind.Project ||
+                       profile.Kind == ProfileKind.BuiltInCommand ||
                        profile.Kind == ProfileKind.CustomizedCommand;
             }
 
@@ -323,7 +341,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 {
                     return string.Empty;
                 }
-            
+
                 return SelectedDebugProfile.ExecutablePath;
             }
             set
@@ -350,7 +368,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             set
             {
                 if (SelectedDebugProfile != null && SelectedDebugProfile.LaunchUrl != value)
-                { 
+                {
                     SelectedDebugProfile.LaunchUrl = value;
                     OnPropertyChanged(nameof(LaunchPage));
                 }
@@ -365,7 +383,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 {
                     return string.Empty;
                 }
-            
+
                 return SelectedDebugProfile.WorkingDirectory;
             }
             set
@@ -493,8 +511,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                //return IsDnxProject && !IsExecutable;
-                return false; //TODO: DebugProp 
+                return !IsExecutable;
             }
         }
         public bool IsCustomType
@@ -506,17 +523,16 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                     return false;
                 }
 
-                return SelectedLaunchType.Kind == ProfileKind.CustomizedCommand || 
+                return SelectedLaunchType.Kind == ProfileKind.CustomizedCommand ||
                        SelectedLaunchType.Kind == ProfileKind.Executable ||
                        SelectedLaunchType.Kind == ProfileKind.IIS ||
                        (SelectedDebugProfile.Kind == ProfileKind.IISExpress && !SelectedDebugProfile.IsDefaultIISExpressProfile) ||
-                       (SelectedDebugProfile.Kind == ProfileKind.Project && !DebugProfile.IsSameProfileName(SelectedDebugProfile.Name, ""//UnconfiguredDotNetProject.ProjectName
-                       ));
+                       (SelectedDebugProfile.Kind == ProfileKind.Project );
             }
         }
 
-        private ObservableCollection<DebugProfile> debugProfiles;
-        public ObservableCollection<DebugProfile> DebugProfiles
+        private ObservableCollection<LaunchProfile> debugProfiles;
+        public ObservableCollection<LaunchProfile> DebugProfiles
         {
             get
             {
@@ -526,7 +542,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             {
                 var oldProfiles = debugProfiles;
                 if (OnPropertyChanged(ref debugProfiles, value))
-                { 
+                {
                     if (oldProfiles != null)
                     {
                         oldProfiles.CollectionChanged -= DebugProfiles_CollectionChanged;
@@ -554,8 +570,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
         }
 
-        private DebugProfile selectedDebugProfile;
-        public DebugProfile SelectedDebugProfile
+        private LaunchProfile selectedDebugProfile;
+        public LaunchProfile SelectedDebugProfile
         {
             get
             {
@@ -576,13 +592,13 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                if(_currentIISSettings != null && SelectedDebugProfile != null)
+                if (_currentIISSettings != null && SelectedDebugProfile != null)
                 {
-                    if(SelectedDebugProfile.Kind == ProfileKind.IISExpress && _currentIISSettings.IISExpressBindingData != null)
+                    if (SelectedDebugProfile.Kind == ProfileKind.IISExpress && _currentIISSettings.IISExpressBindingData != null)
                     {
                         return _currentIISSettings.IISExpressBindingData.SSLPort != 0;
                     }
-                    else if(SelectedDebugProfile.Kind == ProfileKind.IIS && _currentIISSettings.IISBindingData != null)
+                    else if (SelectedDebugProfile.Kind == ProfileKind.IIS && _currentIISSettings.IISBindingData != null)
                     {
                         return _currentIISSettings.IISBindingData.SSLPort != 0;
                     }
@@ -593,44 +609,44 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             {
                 // When transitioning to enabled we want to go get an ssl port. Of course when loading (ignore events is true) we don't 
                 // want to do this.
-                if(value != SSLEnabled && !IgnoreEvents)
+                if (value != SSLEnabled && !IgnoreEvents)
                 {
                     ServerBindingData binding = null;
-                    if(_currentIISSettings != null)
+                    if (_currentIISSettings != null)
                     {
-                        if(SelectedDebugProfile.Kind == ProfileKind.IISExpress && _currentIISSettings.IISExpressBindingData != null)
+                        if (SelectedDebugProfile.Kind == ProfileKind.IISExpress && _currentIISSettings.IISExpressBindingData != null)
                         {
                             binding = _currentIISSettings.IISExpressBindingData;
                         }
-                        else if(SelectedDebugProfile.Kind == ProfileKind.IIS && _currentIISSettings.IISBindingData != null)
+                        else if (SelectedDebugProfile.Kind == ProfileKind.IIS && _currentIISSettings.IISBindingData != null)
                         {
                             binding = _currentIISSettings.IISBindingData;
                         }
                     }
-                    if(binding != null)
+                    if (binding != null)
                     {
                         // When setting we need to configure the port
-                        if(value == true)
+                        if (value == true)
                         {
                             // If we are already have a port (say the guy was enabling\disabing over and over), use that (nothing to do here)
-                            if(string.IsNullOrWhiteSpace(SSLUrl))
+                            if (string.IsNullOrWhiteSpace(SSLUrl))
                             {
                                 ValidateApplicationUrl();
 
                                 // No existing value. Go get one and set the url
                                 // First we must validate the ApplicationUrl is valid. W/O it we don't know the host header
-                                if(SelectedDebugProfile.Kind == ProfileKind.IISExpress)
+                                if (SelectedDebugProfile.Kind == ProfileKind.IISExpress)
                                 {
                                     // Get the SSLPort provider
                                     var sslPortProvider = GetSSLPortProvider();
-                                    if(sslPortProvider != null)
+                                    if (sslPortProvider != null)
                                     {
                                         binding.SSLPort = sslPortProvider.GetAvailableSSLPort(ApplicationUrl);
                                     }
                                     else
                                     {
                                         // Just set it to a default iis express value
-                                        binding.SSLPort = 44300; 
+                                        binding.SSLPort = 44300;
                                     }
                                 }
                                 else
@@ -645,7 +661,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                             }
                         }
                         else
-                        {   
+                        {
                             // Just clear the port. We don't clear the SSL url so that it persists (disabled) until we update.
                             binding.SSLPort = 0;
                         }
@@ -664,23 +680,23 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             get
             {
                 int sslPort = 0;
-                if(_currentIISSettings != null && SelectedDebugProfile != null)
+                if (_currentIISSettings != null && SelectedDebugProfile != null)
                 {
-                    if(SelectedDebugProfile.Kind == ProfileKind.IISExpress && _currentIISSettings.IISExpressBindingData != null)
+                    if (SelectedDebugProfile.Kind == ProfileKind.IISExpress && _currentIISSettings.IISExpressBindingData != null)
                     {
                         sslPort = _currentIISSettings.IISExpressBindingData.SSLPort;
                     }
-                    else if(SelectedDebugProfile.Kind == ProfileKind.IIS && _currentIISSettings.IISBindingData != null)
+                    else if (SelectedDebugProfile.Kind == ProfileKind.IIS && _currentIISSettings.IISBindingData != null)
                     {
                         sslPort = _currentIISSettings.IISBindingData.SSLPort;
                     }
-                    
-                    if(sslPort != 0)
+
+                    if (sslPort != 0)
                     {
                         try
                         {
                             // Application url could be bad so we need to protect ourself.
-                            if(!string.IsNullOrWhiteSpace(ApplicationUrl))
+                            if (!string.IsNullOrWhiteSpace(ApplicationUrl))
                             {
                                 return UriUtilities.MakeSecureUrl(ApplicationUrl, sslPort);
                             }
@@ -688,7 +704,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                         catch
                         {
                         }
-                   }
+                    }
                 }
                 return string.Empty;
             }
@@ -701,7 +717,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                if(_currentIISSettings == null)
+                if (_currentIISSettings == null)
                 {
                     return false;
                 }
@@ -709,7 +725,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
             set
             {
-                if(_currentIISSettings != null && _currentIISSettings.AnonymousAuthentication != value)
+                if (_currentIISSettings != null && _currentIISSettings.AnonymousAuthentication != value)
                 {
                     _currentIISSettings.AnonymousAuthentication = value;
                     OnPropertyChanged(nameof(AnonymousAuthenticationEnabled));
@@ -724,7 +740,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                if(_currentIISSettings == null)
+                if (_currentIISSettings == null)
                 {
                     return false;
                 }
@@ -732,7 +748,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
             set
             {
-                if(_currentIISSettings != null && _currentIISSettings.WindowsAuthentication != value)
+                if (_currentIISSettings != null && _currentIISSettings.WindowsAuthentication != value)
                 {
                     _currentIISSettings.WindowsAuthentication = value;
                     OnPropertyChanged(nameof(WindowsAuthenticationEnabled));
@@ -812,14 +828,14 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
         }
 
-        protected virtual void NotifySelectedChanged(DebugProfile oldProfile)
+        protected virtual void NotifySelectedChanged(LaunchProfile oldProfile)
         {
             // we need to keep the property page control from setting IsDirty when we are just switching between profiles.
             // we still need to notify the display of the changes though
             PushIgnoreEvents();
             try
             {
-        
+
                 // these have no backing store in the viewmodel, we need to send notifications when we change selected profiles
                 // consider a better way of doing this
                 OnPropertyChanged(nameof(SelectedDebugProfile));
@@ -891,7 +907,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         /// Functions which actually does the save of the settings. Persists the changes to the launch settings
         /// file and configures IIS if needed.
         /// </summary>
-        public async virtual Task SaveLaunchSettings()
+        public async virtual System.Threading.Tasks.Task SaveLaunchSettings()
         {
             ILaunchSettingsProvider provider = GetDebugProfileProvider();
             if (EnvironmentVariables != null && EnvironmentVariables.Count > 0)
@@ -905,11 +921,12 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 
             SelectedProfileDnxVersion = UseSpecificRuntime ? SelectedDnxVersion : null;
 
-            await provider.UpdateAndSaveSettingsAsync(new LaunchSettings(DebugProfiles, false, GetIISSettings(), SelectedDebugProfile != null ? SelectedDebugProfile.Name : null));
+            //await provider.UpdateAndSaveSettingsAsync(new LaunchSettings(DebugProfiles, GetIISSettings(), SelectedDebugProfile != null ? SelectedDebugProfile.Name : null));
+            await provider.UpdateAndSaveSettingsAsync(new LaunchSettings(DebugProfiles, null, SelectedDebugProfile != null ? SelectedDebugProfile.Name : null)).ConfigureAwait(false);
 
         }
 
-        private void SetEnvironmentGrid(DebugProfile oldProfile)
+        private void SetEnvironmentGrid(LaunchProfile oldProfile)
         {
             if (EnvironmentVariables != null && oldProfile != null)
             {
@@ -958,33 +975,33 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             // Since this get's reentered if the user saves or the user switches active profiles.
             if (DebugProfiles != null)
             {
-                profilesChanged = profiles.ProfilesAreDifferent(DebugProfiles.Select(p => (IDebugProfile)p).ToList());
+                profilesChanged = profiles.ProfilesAreDifferent(DebugProfiles.Select(p => (ILaunchProfile)p).ToList());
                 IISSettingsChanged = profiles.IISSettingsAreDifferent(GetIISSettings());
                 if (!profilesChanged && !IISSettingsChanged)
                 {
                     return;
                 }
             }
-            
+
             try
             {
                 // This should never change the dirty state
                 PushIgnoreEvents();
 
-                if(profilesChanged)
+                if (profilesChanged)
                 {
                     // Remember the current selection
                     string curProfileName = SelectedDebugProfile == null ? null : SelectedDebugProfile.Name;
 
                     // Load debug profiles
-                    var debugProfiles = new ObservableCollection<DebugProfile>();
+                    var debugProfiles = new ObservableCollection<LaunchProfile>();
 
                     foreach (var profile in profiles.Profiles)
                     {
                         // Don't show the dummy NoAction profile
                         if (profile.Kind != ProfileKind.NoAction)
                         {
-                            var newProfile = new DebugProfile(profile);
+                            var newProfile = new LaunchProfile(profile);
                             debugProfiles.Add(newProfile);
                         }
                     }
@@ -994,12 +1011,12 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                     DebugProfiles = debugProfiles;
 
                     // If we have a selection, we want to leave it as is
-                    if (curProfileName == null || profiles.Profiles.FirstOrDefault(p => { return DebugProfile.IsSameProfileName(p.Name, curProfileName); }) == null)
+                    if (curProfileName == null || profiles.Profiles.FirstOrDefault(p => { return LaunchProfile.IsSameProfileName(p.Name, curProfileName); }) == null)
                     {
                         // Note that we have to be careful since the collection can be empty. 
                         if (!string.IsNullOrEmpty(profiles.ActiveProfileName))
                         {
-                            SelectedDebugProfile = DebugProfiles.Where((p) => DebugProfile.IsSameProfileName(p.Name, profiles.ActiveProfileName)).Single();
+                            SelectedDebugProfile = DebugProfiles.Where((p) => LaunchProfile.IsSameProfileName(p.Name, profiles.ActiveProfileName)).Single();
                         }
                         else
                         {
@@ -1015,10 +1032,10 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                     }
                     else
                     {
-                        SelectedDebugProfile = DebugProfiles.Where((p) => DebugProfile.IsSameProfileName(p.Name, curProfileName)).Single();
+                        SelectedDebugProfile = DebugProfiles.Where((p) => LaunchProfile.IsSameProfileName(p.Name, curProfileName)).Single();
                     }
                 }
-                if(IISSettingsChanged)
+                if (IISSettingsChanged)
                 {
                     InitializeIISSettings(profiles.IISSettings);
                 }
@@ -1034,17 +1051,17 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         /// </summary>
         protected virtual void InitializeDebugTargets()
         {
-            if(_debugProfileProviderLink == null)
+            if (_debugProfileProviderLink == null)
             {
                 var debugProfilesBlock = new ActionBlock<ILaunchSettings>(
                 async (profiles) =>
                 {
                     if (_useTaskFactory)
                     {
-                       await _threadingService.SwitchToUIThread();
+                        await ProjectThreadingService.SwitchToUIThread();
                     }
                     InitializeDebugTargetsCore(profiles);
-                 });
+                });
 
                 var profileProvider = GetDebugProfileProvider();
                 _debugProfileProviderLink = profileProvider.SourceBlock.LinkTo(
@@ -1052,25 +1069,12 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                     linkOptions: new DataflowLinkOptions { PropagateCompletion = true });
             }
         }
-
-        public async override Task Initialize()
+        
+        public async override System.Threading.Tasks.Task Initialize()
         {
-            /* //TODO: DebugProp 
             // Need to set whether this is a web project or not since other parts of the code will use the cached value
-            await IsWebProjectAsync();
-
-            // Don't do the version dropdown for dotnet tooling
-            if(IsDnxProject)
-            {
-                DnxVersions = new ObservableCollection<string>(GetAvailableVersions());
-                // If there are no DnxVersions do nothing
-                if(DnxVersions.Count != 0)
-                {
-                    _defaultDNXVersion = await GetDefaultPackageVersionAsync();
-                }
-            }
-            */
-
+            // TODO: await IsWebProjectAsync();
+                        
             // Create the debug targets dropdown
             InitializeDebugTargets();
         }
@@ -1081,7 +1085,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         /// </summary>
         private void InitializeIISSettings(IIISSettings iisSettings)
         {
-            if(iisSettings == null)
+            if (iisSettings == null)
             {
                 _currentIISSettings = null;
                 return;
@@ -1101,36 +1105,36 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         /// </summary>
         public async override Task<int> Save()
         {
-            /*
+
             // For web projects, we need to validate the settings -especially the appUrl from which everything else hangs.
-            if(ContainsProfileKind(ProfileKind.IISExpress))
+            if (ContainsProfileKind(ProfileKind.IISExpress))
             {
-                if(_currentIISSettings == null || _currentIISSettings.IISExpressBindingData == null || string.IsNullOrEmpty(_currentIISSettings.IISExpressBindingData.ApplicationUrl))
+                if (_currentIISSettings == null || _currentIISSettings.IISExpressBindingData == null || string.IsNullOrEmpty(_currentIISSettings.IISExpressBindingData.ApplicationUrl))
                 {
                     throw new Exception(Resources.IISExpressMissingAppUrl);
                 }
                 try
                 {
-                     Uri appUri = new Uri(_currentIISSettings.IISExpressBindingData.ApplicationUrl, UriKind.Absolute);
-                     if(appUri.Port < 1024 && !UnconfiguredDotNetProject.ServiceProvider.VSIsRunningElevated())
-                     {
+                    Uri appUri = new Uri(_currentIISSettings.IISExpressBindingData.ApplicationUrl, UriKind.Absolute);
+                    if (appUri.Port < 1024)
+                    {
                         throw new Exception(Resources.AdminRequiredForPort);
-                     }
+                    }
                 }
                 catch (UriFormatException ex)
                 {
                     throw new Exception(string.Format(Resources.InvalidIISExpressAppUrl, ex.Message));
                 }
             }
-            if(ContainsProfileKind(ProfileKind.IIS))
+            if (ContainsProfileKind(ProfileKind.IIS))
             {
-                if(_currentIISSettings == null || _currentIISSettings.IISBindingData == null || string.IsNullOrEmpty(_currentIISSettings.IISBindingData.ApplicationUrl))
+                if (_currentIISSettings == null || _currentIISSettings.IISBindingData == null || string.IsNullOrEmpty(_currentIISSettings.IISBindingData.ApplicationUrl))
                 {
                     throw new Exception(Resources.IISMissingAppUrl);
                 }
                 try
                 {
-                     Uri appUri = new Uri(_currentIISSettings.IISBindingData.ApplicationUrl, UriKind.Absolute);
+                    Uri appUri = new Uri(_currentIISSettings.IISBindingData.ApplicationUrl, UriKind.Absolute);
                 }
                 catch (UriFormatException ex)
                 {
@@ -1146,27 +1150,26 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             {
                 SelectedDnxVersion = _defaultDNXVersion;
             }
-            */ //TODO: DebugProp 
+
             return VSConstants.S_OK;
         }
-        
+
         /// <summary>
         ///  Helper to determine if an IIS Express profile is defined
         /// </summary>
         private void ValidateApplicationUrl()
         {
-            if(string.IsNullOrEmpty(ApplicationUrl))
+            if (string.IsNullOrEmpty(ApplicationUrl))
             {
                 throw new Exception(Resources.IISExpressMissingAppUrl);
             }
             try
             {
-                    Uri appUri = new Uri(ApplicationUrl, UriKind.Absolute);
-                /* //TODO: DebugProp 
-                 * if(appUri.Port < 1024 && !UnconfiguredDotNetProject.ServiceProvider.VSIsRunningElevated())
+                Uri appUri = new Uri(ApplicationUrl, UriKind.Absolute);
+                if (appUri.Port < 1024)
                 {
-                throw new Exception(Resources.AdminRequiredForPort);
-                }*/
+                    throw new Exception(Resources.AdminRequiredForPort);
+                }
             }
             catch (UriFormatException ex)
             {
@@ -1181,15 +1184,15 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             return DebugProfiles != null && DebugProfiles.FirstOrDefault(p => p.Kind == kind) != null;
         }
-       
-         /// <summary>
+
+        /// <summary>
         /// Helper to get the IIS Settings
         /// </summary>
-        private IISSettings GetIISSettings()
+        private IISSettingsProfile GetIISSettings()
         {
-            if(_currentIISSettings != null)
+            if (_currentIISSettings != null)
             {
-                return new IISSettings(_currentIISSettings);
+                return new IISSettingsProfile(_currentIISSettings);
             }
 
             return null;
@@ -1203,7 +1206,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 return LazyInitializer.EnsureInitialized(ref _addEnironmentVariableRowCommand, () =>
                     new DelegateCommand((state) =>
                     {
-                        NameValuePair newRow = new NameValuePair(Resources.EnvVariableNameWatermark, Resources.EnvVariableValueWatermark, EnvironmentVariables);
+                        NameValuePair newRow = new NameValuePair(PropertyPageResources.EnvVariableNameWatermark, PropertyPageResources.EnvVariableValueWatermark, EnvironmentVariables);
                         EnvironmentVariables.Add(newRow);
                         EnvironmentVariablesRowSelectedIndex = EnvironmentVariables.Count - 1;
                         //Raise event to focus on 
@@ -1318,17 +1321,16 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                /*return LazyInitializer.EnsureInitialized(ref _newProfileCommand, () =>
-                    new DelegateCommand(state =>
-                    {
-                        var dialog = new GetProfileNameDialog(UnconfiguredDotNetProject.ServiceProvider, GetNewProfileName(), IsNewProfileNameValid);
-                        if (dialog.ShowModal() == true)
-                        {
-                            CreateProfile(dialog.ProfileName, ProfileKind.Executable);
-                        }
-                    }));
-                */
-                return null; //TODO: DebugProp 
+                /*LazyInitializer.EnsureInitialized(ref _newProfileCommand, () =>
+                 new DelegateCommand(state =>
+                 {
+                     var dialog = new GetProfileNameDialog(UnconfiguredDotNetProject.ServiceProvider, GetNewProfileName(), IsNewProfileNameValid);
+                     if (dialog.ShowModal() == true)
+                     {
+                         CreateProfile(dialog.ProfileName, ProfileKind.Executable);
+                     }
+                 })); */
+                return null;
             }
         }
 
@@ -1361,9 +1363,9 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
         }
 
-        internal DebugProfile CreateProfile(string name, ProfileKind kind)
+        internal LaunchProfile CreateProfile(string name, ProfileKind kind)
         {
-            var profile = new DebugProfile() { Name = name, Kind = kind };
+            var profile = new LaunchProfile() { Name = name, Kind = kind };
             DebugProfiles.Add(profile);
 
             // Fire a property changed so we can get the page to be dirty when we add a new profile
@@ -1375,12 +1377,12 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         internal bool IsNewProfileNameValid(string name)
         {
             return DebugProfiles.Where(
-                profile => DebugProfile.IsSameProfileName(profile.Name, name)).Count() == 0;
+                profile => LaunchProfile.IsSameProfileName(profile.Name, name)).Count() == 0;
         }
 
         internal string GetNewProfileName()
         {
-            for(int i=1; i < int.MaxValue; i++)
+            for (int i = 1; i < int.MaxValue; i++)
             {
                 string profileName = String.Format("{0}{1}", Resources.NewProfileSeedName, i.ToString());
                 if (IsNewProfileNameValid(profileName))
@@ -1392,19 +1394,25 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             return String.Empty;
         }
 
+        /// <summary>
+        /// Helper to determine if this is a web project or not. We cache it so we can get it in a non
+        /// async way from the UI.
+        /// </summary>
+        public bool IsWebProject { get; private set; }
+
         private void SetLaunchType()
         {
             if (!IsProfileSelected)
             {
                 launchTypes = new List<LaunchType>();
             }
-            else if (SelectedDebugProfile.Kind == ProfileKind.CustomizedCommand || SelectedDebugProfile.Kind == ProfileKind.IIS || 
-                     SelectedDebugProfile.Kind == ProfileKind.Executable || 
+            else if (SelectedDebugProfile.Kind == ProfileKind.CustomizedCommand || SelectedDebugProfile.Kind == ProfileKind.IIS ||
+                     SelectedDebugProfile.Kind == ProfileKind.Executable ||
                      (SelectedDebugProfile.Kind == ProfileKind.IISExpress && !SelectedDebugProfile.IsDefaultIISExpressProfile))
             {
                 // For customized commands, exe, IIS and non-built in IIS Express we allow the user to switch between them. Two cases, one where we have commands
                 // and one where there are no commands defined in project.json
-                /*if (CommandNames.Count > 0)
+                if (CommandNames.Count > 0)
                 {
                     launchTypes = IsWebProject ? LaunchType.GetWebCustomizedLaunchTypes(IsDnxProject).ToList<LaunchType>() : LaunchType.GetCustomizedLaunchTypes(IsDnxProject).ToList<LaunchType>();
                 }
@@ -1412,30 +1420,36 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
                 {
                     launchTypes = IsWebProject ? LaunchType.GetWebExecutableOnlyLaunchTypes(IsDnxProject).ToList<LaunchType>() : LaunchType.GetExecutableOnlyLaunchTypes(IsDnxProject).ToList<LaunchType>();
                 }
-                */
             }
-            /*else
+            else
             {
                 launchTypes = LaunchType.GetBuiltInLaunchTypes(IsDnxProject).ToList<LaunchType>();
-            }*/
-            
+            }
+
             OnPropertyChanged(nameof(LaunchTypes));
 
             // The selected launch type has to be tweaked for DotNet since in dotnet we don't want to support commands and yet user might have some commands 
             // defined from it being a DNX project. For that, we map the command launch types to the "Project" kind
-            if(!IsProfileSelected)
+            if (!IsProfileSelected)
             {
-                 SelectedLaunchType = null;
+                SelectedLaunchType = null;
             }
             else
             {
                 var selKind = SelectedDebugProfile.Kind;
-                /*if(!IsDnxProject && (selKind == ProfileKind.BuiltInCommand || selKind == ProfileKind.CustomizedCommand))
+                if ((selKind == ProfileKind.BuiltInCommand || selKind == ProfileKind.CustomizedCommand))
                 {
                     selKind = ProfileKind.Project;
                 }
-                SelectedLaunchType = LaunchType.GetAllLaunchTypes(IsDnxProject).Where(lt => lt.Kind == selKind).SingleOrDefault(); 
-                */
+                SelectedLaunchType = LaunchType.GetAllLaunchTypes(IsDnxProject).Where(lt => lt.Kind == selKind).SingleOrDefault();
+            }
+        }
+
+        public virtual bool IsDnxProject
+        {
+            get
+            {
+                return false;
             }
         }
 
@@ -1452,26 +1466,11 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         }
 
         /// <summary>
-        /// Helper to wait on async tasks
-        /// </summary>
-        protected T WaitForAsync<T>(Func<Task<T>> asyncFunc)
-        {
-            if (!_useTaskFactory)
-            {
-                // internal test usage
-                Task<T> t = asyncFunc();
-                return t.Result;
-            }
-
-            return _threadingService.ExecuteSynchronously<T>(asyncFunc);
-        }
-
-        /// <summary>
         /// Overridden to do cleanup
         /// </summary>
         public override void ViewModelDetached()
         {
-            if(_debugProfileProviderLink != null)
+            if (_debugProfileProviderLink != null)
             {
                 _debugProfileProviderLink.Dispose();
                 _debugProfileProviderLink = null;
@@ -1479,46 +1478,29 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         }
 
         [ExcludeFromCodeCoverage]
-        protected virtual async Task<string> GetDefaultPackageVersionAsync()
-        {
-            /* //TODO: DebugProp 
-             * var sdkTooling = await UnconfiguredDotNetProject.GetDefaultTargetSdkToolingData(matchForProjectFrameworks: false, downloadIfNotExist: false);
-             if(sdkTooling != null)
-             {
-                 // For dotnet we need to return the complete string which includes the type information
-                 if(!sdkTooling.IsDotNetCli)
-                 {
-                     return DnxRuntimeName.GetPackageFromRuntimeFolder(sdkTooling.SdkPath).FullNameOrPrefix;
-                 }
-                 return sdkTooling.SdkVersion;
-             }*/
-            return string.Empty;
-        }
-
-        [ExcludeFromCodeCoverage]
         protected virtual IEnumerable<string> GetAvailableVersions()
         {
-            //return TargetDnxVersionsFinder.GetAvailableDnxVersions(GetSubscriptions()); 
-            return null; //TODO: DebugProp 
+            return null;
         }
 
         [ExcludeFromCodeCoverage]
         protected virtual ILaunchSettingsProvider GetDebugProfileProvider()
         {
-            //return UnconfiguredDotNetProject.UnconfiguredProject.Services.ExportProvider.GetExportedValue<ILaunchSettingsProvider>();
-            return null; //TODO: DebugProp 
+            return UnconfiguredDotNetProject.Services.ExportProvider.GetExportedValue<ILaunchSettingsProvider>();
         }
 
         [ExcludeFromCodeCoverage]
         protected virtual ISSLPortProvider GetSSLPortProvider()
         {
-            /*try 
+            try
             {
-                return UnconfiguredDotNetProject.UnconfiguredProject.Services.ExportProvider.GetExportedValue<ISSLPortProvider>();
+                // TODO
+                //return UnconfiguredProject.Services.ExportProvider.GetExportedValue<ISSLPortProvider>();
+                return null;
             }
             catch
             {
-            }*/
+            }
             return null;
         }
 
@@ -1552,34 +1534,34 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             // Helper accessors to deal with dnx/dotnet differences
             public static LaunchType[] GetAllLaunchTypes(bool isDNX)
             {
-                return isDNX? DNXAllLaunchTypes : AllLaunchTypes;
+                return isDNX ? DNXAllLaunchTypes : AllLaunchTypes;
             }
 
             public static LaunchType[] GetWebCustomizedLaunchTypes(bool isDNX)
             {
-                return isDNX? DNXWebCustomizedLaunchTypes : WebCustomizedLaunchTypes;
+                return isDNX ? DNXWebCustomizedLaunchTypes : WebCustomizedLaunchTypes;
             }
             public static LaunchType[] GetCustomizedLaunchTypes(bool isDNX)
             {
-                return isDNX? DNXCustomizedLaunchTypes : CustomizedLaunchTypes;
+                return isDNX ? DNXCustomizedLaunchTypes : CustomizedLaunchTypes;
             }
 
             public static LaunchType[] GetBuiltInLaunchTypes(bool isDNX)
             {
-                return isDNX? DNXBuiltInLaunchTypes : BuiltInLaunchTypes;
+                return isDNX ? DNXBuiltInLaunchTypes : BuiltInLaunchTypes;
             }
 
             public static LaunchType[] GetWebExecutableOnlyLaunchTypes(bool isDNX)
             {
-                return isDNX? DNXWebExecutableOnlyLaunchType: WebExecutableOnlyLaunchType;
+                return isDNX ? DNXWebExecutableOnlyLaunchType : WebExecutableOnlyLaunchType;
             }
 
             public static LaunchType[] GetExecutableOnlyLaunchTypes(bool isDNX)
             {
-                return isDNX? DNXExecutableOnlyLaunchType: ExecutableOnlyLaunchType;
+                return isDNX ? DNXExecutableOnlyLaunchType : ExecutableOnlyLaunchType;
             }
 
-// billhie: IIS is disabled until RC2 once we have sorted out the hosting story so we don't define an IIS launch type. 
+            // billhie: IIS is disabled until RC2 once we have sorted out the hosting story so we don't define an IIS launch type. 
 #if IISSUPPORT
             public static readonly LaunchType IIS = new LaunchType() { Kind = ProfileKind.IIS, Name = Resources.ProfileKindIISName };
             public static readonly LaunchType[] AllLaunchTypes = new LaunchType[] { Executable, IISExpress, IIS, Project };
@@ -1595,11 +1577,11 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             private static readonly LaunchType[] ExecutableOnlyLaunchType = new LaunchType[] { Executable, Project };
 
             // DNX still exposes commands, so we have a different set for those
-            private static readonly LaunchType[] DNXAllLaunchTypes = new LaunchType[] { BuiltInCommand, CustomizedCommand, Executable, IISExpress};
-            private static readonly LaunchType[] DNXWebCustomizedLaunchTypes = new LaunchType[] { CustomizedCommand, Executable, IISExpress};
+            private static readonly LaunchType[] DNXAllLaunchTypes = new LaunchType[] { BuiltInCommand, CustomizedCommand, Executable, IISExpress };
+            private static readonly LaunchType[] DNXWebCustomizedLaunchTypes = new LaunchType[] { CustomizedCommand, Executable, IISExpress };
             private static readonly LaunchType[] DNXWebExecutableOnlyLaunchType = new LaunchType[] { Executable, IISExpress, Project };
-            private static readonly LaunchType[] DNXBuiltInLaunchTypes = new LaunchType[] { BuiltInCommand, Executable, IISExpress};
-            private static readonly LaunchType[] DNXCustomizedLaunchTypes = new LaunchType[] { CustomizedCommand, Executable};
+            private static readonly LaunchType[] DNXBuiltInLaunchTypes = new LaunchType[] { BuiltInCommand, Executable, IISExpress };
+            private static readonly LaunchType[] DNXCustomizedLaunchTypes = new LaunchType[] { CustomizedCommand, Executable };
             private static readonly LaunchType[] DNXExecutableOnlyLaunchType = new LaunchType[] { Executable };
         }
     }

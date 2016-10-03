@@ -95,9 +95,9 @@
                     x:Name="btnNewProfile"
                     MinHeight="23"
                     MinWidth="80"
-                    Margin="6,8,1,8"
+                    Margin="6,0,1,8"
                     VerticalContentAlignment="Center"
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Bottom"
                     Content="_New..."
                     IsEnabled="{Binding Path=NewProfileEnabled, Mode=OneWay}"
                     Command="{Binding Path=NewProfileCommand}">
@@ -140,7 +140,7 @@
                 IsEnabled="{Binding Path=IsCustomType}"
                 IsEditable="False">
             </ComboBox>
-            
+
             <Label 
                 Grid.Row="4"
                 x:Uid="argumentsLabel"
@@ -241,7 +241,7 @@
                 IsEnabled="{Binding Path=IsProfileSelected, Mode=OneWay}"
                 Visibility="{Binding Path=ShowVersionSelector, Mode=OneWay, Converter={StaticResource visibilityConverter}}"
                 Content="Use Specific _Runtime:"/>
-           <Label 
+            <Label 
                 Grid.Row="8"
                 x:Uid="envVarsLabel"
                 Margin="4,4,3,0"

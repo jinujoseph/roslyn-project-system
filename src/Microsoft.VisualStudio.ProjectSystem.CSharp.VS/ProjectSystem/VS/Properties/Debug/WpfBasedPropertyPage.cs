@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Controls;
+using System.ComponentModel.Composition;
+using Microsoft.VisualStudio.ProjectSystem.VS.Extensibility;
 
 namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 {
@@ -16,6 +18,9 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         private PropertyPageElementHost host;
         private PropertyPageControl control;
         private PropertyPageViewModel viewModel;
+        private readonly UnconfiguredProject _unconfiguredProject;
+        private readonly IProjectThreadingService _threadHandling;
+               
 
         public WpfBasedPropertyPage()
         {
@@ -49,7 +54,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
             }
 
             viewModel = CreatePropertyPageViewModel();
-            //viewModel.UnconfiguredDotNetProject = UnconfiguredDotNetProject;
+            viewModel.UnconfiguredDotNetProject = UnconfiguredDotNetProject;
             viewModel.UnconfiguredProperties = UnconfiguredProperties;
             viewModel.ConfiguredProperties = ConfiguredProperties;
             await viewModel.Initialize();

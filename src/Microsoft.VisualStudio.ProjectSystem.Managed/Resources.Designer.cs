@@ -61,6 +61,15 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You must run Visual Studio in the context of an administrator account to create IIS Express sites with ports less than 1024..
+        /// </summary>
+        internal static string AdminRequiredForPort {
+            get {
+                return ResourceManager.GetString("AdminRequiredForPort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All files.
         /// </summary>
         internal static string AllFiles {
@@ -169,11 +178,38 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The IIS settings are missing the App Url property. This is required to configure IIS to run the site..
+        /// </summary>
+        internal static string IISMissingAppUrl {
+            get {
+                return ResourceManager.GetString("IISMissingAppUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Application Url is invalid. {0}.
         /// </summary>
         internal static string InvalidAppUrl {
             get {
                 return ResourceManager.GetString("InvalidAppUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The IIS Application Url is invalid. {0}.
+        /// </summary>
+        internal static string InvalidIISAppUrl {
+            get {
+                return ResourceManager.GetString("InvalidIISAppUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The IIS Express Application Url is invalid. {0}.
+        /// </summary>
+        internal static string InvalidIISExpressAppUrl {
+            get {
+                return ResourceManager.GetString("InvalidIISExpressAppUrl", resourceCulture);
             }
         }
         
@@ -255,6 +291,15 @@ namespace Microsoft.VisualStudio {
         internal static string ProfileKindIISExpressName {
             get {
                 return ResourceManager.GetString("ProfileKindIISExpressName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        internal static string ProfileKindNoActionName {
+            get {
+                return ResourceManager.GetString("ProfileKindNoActionName", resourceCulture);
             }
         }
         
