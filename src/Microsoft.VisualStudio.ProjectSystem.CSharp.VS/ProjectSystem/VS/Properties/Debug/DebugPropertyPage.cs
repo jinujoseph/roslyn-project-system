@@ -41,7 +41,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
     {
 
         internal static readonly string PageName = "Debug Page"; // Resources.DebugPropertyPageTitle;//TODO: DebugProp 
-
+        
         public DebugPropertyPage()
         { 
         }

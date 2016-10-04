@@ -10,6 +10,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.ProjectSystem.VS;
+using Microsoft.VisualStudio.Shell;
+using resources= Microsoft.VisualStudio.Resources;
 
 namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
 {
@@ -18,16 +21,18 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
     {
         private Predicate<string> Validator { get; set; }
         public string ProfileName { get; set; }
-        private IServiceProvider ServiceProvider { get; set; }
+        private SVsServiceProvider _serviceProvider { get; set; }
+        private IProjectThreadingService _threadingService { get; set; }
 
-        public GetProfileNameDialog(IServiceProvider sp, string suggestedName, Predicate<string> validator)
+        public GetProfileNameDialog(SVsServiceProvider sp, IProjectThreadingService threadingService, string suggestedName, Predicate<string> validator)
             : base()// Pass help topic to base if there is one
         {
             InitializeComponent();
             DataContext = this;
             ProfileName = suggestedName;
             Validator = validator;
-            ServiceProvider = sp;
+            _serviceProvider = sp;
+            _threadingService = threadingService;
         }
 
         //------------------------------------------------------------------------------
@@ -37,15 +42,16 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             string newName = ProfileName;
             newName = newName?.Trim();
+            UserNotificationServices notifyService = new UserNotificationServices(_serviceProvider, _threadingService);
 
             if (string.IsNullOrEmpty(newName))
             {
-                VsServices.ShowMessageBox(ServiceProvider, SR.ProfileNameRequired, null,  OLEMSGICON.OLEMSGICON_CRITICAL, 
+                notifyService.ShowMessageBox(resources.ProfileNameRequired, null,  OLEMSGICON.OLEMSGICON_CRITICAL, 
                                                   OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
             }
             else if (!Validator(newName))
             {
-                VsServices.ShowMessageBox(ServiceProvider, SR.ProfileNameInvalid, null,  OLEMSGICON.OLEMSGICON_CRITICAL, 
+                notifyService.ShowMessageBox(resources.ProfileNameInvalid, null,  OLEMSGICON.OLEMSGICON_CRITICAL, 
                                                   OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
             }
             else
@@ -63,7 +69,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                return SR.NewProfileCaption;
+                return resources.NewProfileCaption;
             }
         }
         //------------------------------------------------------------------------------

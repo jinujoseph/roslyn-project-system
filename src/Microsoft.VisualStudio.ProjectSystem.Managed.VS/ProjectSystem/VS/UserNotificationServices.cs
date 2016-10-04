@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Composition;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
+using System;
 
 namespace Microsoft.VisualStudio.ProjectSystem.VS
 {
@@ -42,6 +43,45 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS
             var result = VsShellUtilities.ShowMessageBox(_serviceProvider, failureMessage, null, OLEMSGICON.OLEMSGICON_WARNING,
                                OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
+
+        /// <summary>
+        /// It is the responsibility of caller to call this method on UI Thread.
+        /// The method will throw if not called on UI Thread.
+        /// </summary>
+        public int ShowMessageBox(string message, string title, OLEMSGICON icon, OLEMSGBUTTON msgButton, OLEMSGDEFBUTTON defaultButton)
+        {
+            _threadingService.VerifyOnUIThread();
+
+            if (_serviceProvider == null)
+            {
+                throw new ArgumentException("serviceProvider");
+            }
+
+            IVsUIShell uiShell = _serviceProvider.GetService(typeof(IVsUIShell)) as IVsUIShell;
+            if (uiShell == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            Guid emptyGuid = Guid.Empty;
+            int result = 0;
+
+            ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
+                0,
+                ref emptyGuid,
+                title,
+                message,
+                null,
+                0,
+                msgButton,
+                defaultButton,
+                icon,
+                0,
+                out result));
+
+            return result;
+        }
+
 
         /// <summary>
         /// Uses IVsUIShell to display the error associated with the hr. Will look for an error string on the current thread that was

@@ -61,6 +61,9 @@
     <Compile Include="ProjectSystem\VS\Properties\Debug\DebugPropertyPage.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\DefaultValueSourceLocation.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\EnvironmentGridTemplateColumn.cs" />
+    <Compile Include="ProjectSystem\VS\Properties\Debug\GetProfileNameDialog.xaml.cs">
+      <DependentUpon>GetProfileNameDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ProjectSystem\VS\Properties\Debug\IArgument.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\ICategory.cs" />
     <Compile Include="ProjectSystem\VS\Properties\Debug\IDataSource.cs" />
@@ -121,6 +124,10 @@
     <Page Include="ProjectSystem\VS\Properties\Debug\DebugPageControl.xaml">
       <SubType>Designer</SubType>
       <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
+    <Page Include="ProjectSystem\VS\Properties\Debug\GetProfileNameDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ProjectSystem\VS\Properties\Debug\WatermarkStyle.xaml">
       <Generator>MSBuild:Compile</Generator>

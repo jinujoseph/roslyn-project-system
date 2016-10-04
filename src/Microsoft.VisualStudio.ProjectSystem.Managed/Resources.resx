@@ -210,4 +210,13 @@
   <data name="InvalidIISExpressAppUrl" xml:space="preserve">
     <value>The IIS Express Application Url is invalid. {0}</value>
   </data>
+  <data name="NewProfileCaption" xml:space="preserve">
+    <value>New profile</value>
+  </data>
+  <data name="ProfileNameInvalid" xml:space="preserve">
+    <value>That profile name is invalid or there is an existing profile with the same name.</value>
+  </data>
+  <data name="ProfileNameRequired" xml:space="preserve">
+    <value>You must specify a profile name.</value>
+  </data>
 </root>

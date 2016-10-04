@@ -1321,16 +1321,19 @@ namespace Microsoft.VisualStudio.ProjectSystem.CSharp.VS
         {
             get
             {
-                /*LazyInitializer.EnsureInitialized(ref _newProfileCommand, () =>
+                return LazyInitializer.EnsureInitialized(ref _newProfileCommand, () =>
                  new DelegateCommand(state =>
                  {
-                     var dialog = new GetProfileNameDialog(UnconfiguredDotNetProject.ServiceProvider, GetNewProfileName(), IsNewProfileNameValid);
+                     var dialog = new GetProfileNameDialog(UnconfiguredDotNetProject.Services.ExportProvider.GetExportedValue<SVsServiceProvider>(),
+                                                            ProjectThreadingService, 
+                                                            GetNewProfileName(), 
+                                                            IsNewProfileNameValid);
                      if (dialog.ShowModal() == true)
                      {
                          CreateProfile(dialog.ProfileName, ProfileKind.Executable);
                      }
-                 })); */
-                return null;
+                 })); 
+                
             }
         }
 

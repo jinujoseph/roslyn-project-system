@@ -250,6 +250,15 @@ namespace Microsoft.VisualStudio {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New profile.
+        /// </summary>
+        internal static string NewProfileCaption {
+            get {
+                return ResourceManager.GetString("NewProfileCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to newProfile.
         /// </summary>
         internal static string NewProfileSeedName {
@@ -318,6 +327,24 @@ namespace Microsoft.VisualStudio {
         internal static string ProfileMissingName {
             get {
                 return ResourceManager.GetString("ProfileMissingName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to That profile name is invalid or there is an existing profile with the same name..
+        /// </summary>
+        internal static string ProfileNameInvalid {
+            get {
+                return ResourceManager.GetString("ProfileNameInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must specify a profile name..
+        /// </summary>
+        internal static string ProfileNameRequired {
+            get {
+                return ResourceManager.GetString("ProfileNameRequired", resourceCulture);
             }
         }
         
