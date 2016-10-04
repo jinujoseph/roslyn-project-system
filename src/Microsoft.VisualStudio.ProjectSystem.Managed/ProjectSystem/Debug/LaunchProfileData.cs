@@ -16,6 +16,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.Debug
     {
         // Well known properties
         const string Prop_commandName = "commandName";
+        const string Prop_kind = "kind";
         const string Prop_executablePath = "executablePath";
         const string Prop_commandLineArgs = "commandLineArgs";
         const string Prop_workingDirectory = "workingDirectory";
@@ -26,6 +27,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.Debug
         static HashSet<string> knownProfileProperties = new HashSet<string>(StringComparer.Ordinal)
         {
             {Prop_commandName},
+            {Prop_kind},
             {Prop_executablePath},
             {Prop_commandLineArgs},
             {Prop_workingDirectory},
@@ -44,6 +46,9 @@ namespace Microsoft.VisualStudio.ProjectSystem.Debug
 
         [JsonProperty(PropertyName = Prop_commandName)]
         public string CommandName { get; set; }
+
+        [JsonProperty(PropertyName = Prop_kind)]
+        public ProfileKind Kind { get; set; }
 
         [JsonProperty(PropertyName = Prop_executablePath)]
         public string ExecutablePath { get; set; }
@@ -163,7 +168,12 @@ namespace Microsoft.VisualStudio.ProjectSystem.Debug
                 data.Add(Prop_commandName, profile.CommandName);
             }
 
-            if(!string.IsNullOrEmpty(profile.ExecutablePath))
+            if (profile.Kind != ProfileKind.NoAction)
+            {
+                data.Add(Prop_kind, profile.Kind);
+            }
+
+            if (!string.IsNullOrEmpty(profile.ExecutablePath))
             {
                 data.Add(Prop_executablePath, profile.ExecutablePath);
             }

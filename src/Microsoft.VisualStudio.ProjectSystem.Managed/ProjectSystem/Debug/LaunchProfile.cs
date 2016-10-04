@@ -20,6 +20,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.Debug
         public LaunchProfile(LaunchProfileData data)
         {
             Name = data.Name;
+            Kind = data.Kind;
             ExecutablePath = data.ExecutablePath;
             CommandName = data.CommandName;
             CommandLineArgs = data.CommandLineArgs; 
@@ -37,6 +38,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.Debug
         public LaunchProfile(ILaunchProfile existingProfile)
         {
            Name = existingProfile.Name;
+           Kind = existingProfile.Kind;
            ExecutablePath = existingProfile.ExecutablePath;
            CommandName = existingProfile.CommandName;
            CommandLineArgs = existingProfile.CommandLineArgs; 
